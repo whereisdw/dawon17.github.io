@@ -1,37 +1,21 @@
-window.addEventListener('load', ()=>{
-    let long;
-    let lat;
-    const API_KEY = "a3dd809a9ad2fef162af8d567f8bf6c2";
-    let temperatureDescription = document.querySelector('.temperature-description');
-    let temperatureDegree = document.querySelector('.temperature-degree');
-    let locationTimezone = document.querySelector('.location-timezone');
 
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(position=>{
-            long = position.coords.longitude;
-            lat = position.coords.latitude;
+const weatherIcon = document.querySelector('.weather_icon');
+const API_KEY = '2617fa438a56f0ea55ba27d3939b3f80';
 
-            const api= `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&appid=${API_KEY}&units=metric`;
-            fetch(api)
-            .then(data =>{
-                return data.json();
-            })
-            .then(data => {
-                // console.log(data);
-                const {temp} = data.main;
-                const {icon,description} = data.weather[0];
-                const {country} = data.sys;
+function geoOK(position) {
+  const lat = position.coords.latitude;
+  const lon = position.coords.longitude;
+  const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`;
+  fetch(url)
+    .then((response) => response.json())
+    .then((data) => {
+      const temp = document.querySelector('#weather span');
+      const CurrentIcon = data.weather[0].icon;
+      weatherIcon.src = `http://openweathermap.org/img/wn/${CurrentIcon}@2x.png`;
+      temp.innerText = `${Math.ceil(data.main.temp)}°`;
+    });
+}
 
-                // Set Dom elements from the API
-                temperatureDegree.textContent = temp;
-                temperatureDescription.textContent = description;
-                locationTimezone.textContent = country;
-                // Set Icon
-                const iconurl = document.querySelector(".wicon")
-                iconurl.src= `http://openweathermap.org/img/wn/${icon}@2x.png`;
-                
-            });
-        });
-    }
+function geoError() {}
 
-});
+navigator.geolocation.getCurrentPosition(geoOK, geoError);
